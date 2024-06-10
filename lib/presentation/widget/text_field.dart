@@ -9,6 +9,7 @@ class CustomTextField extends StatefulWidget {
   final bool isPassword;
   final TextEditingController controller;
   final double textFieldWidth;
+  final bool hasText;
   const CustomTextField({
     super.key,
     required this.title,
@@ -17,6 +18,7 @@ class CustomTextField extends StatefulWidget {
     required this.textFieldWidth,
     this.keyboardType = TextInputType.name,
     this.isPassword = false,
+    this.hasText = false,
   });
 
   @override
@@ -38,11 +40,12 @@ class _CustomTextFieldWithTextState extends State<CustomTextField> {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          widget.title,
-          style: GoogleFonts.inter(
-              textStyle: MTextStyle.ui_16Medium(MColor.black)),
-        ),
+        if (widget.hasText)
+          Text(
+            widget.title,
+            style: GoogleFonts.inter(
+                textStyle: MTextStyle.ui_16Medium(MColor.black)),
+          ),
         SizedBox(
           width: widget.textFieldWidth,
           child: TextField(

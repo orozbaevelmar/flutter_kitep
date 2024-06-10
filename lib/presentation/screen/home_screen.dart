@@ -1,11 +1,14 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:kitep/constants/constants.dart';
 import 'package:kitep/presentation/widget/check_box.dart';
 import 'package:kitep/presentation/widget/custom_button.dart';
 import 'package:kitep/presentation/widget/text_field.dart';
+import 'package:kitep/presentation/widget/text_field2.dart';
 import 'package:kitep/presentation/widget/text_field_with_text.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,8 +25,13 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _controller3 = TextEditingController();
   final TextEditingController _controller4 = TextEditingController();
   final TextEditingController _controller5 = TextEditingController();
+  final TextEditingController _controller6 = TextEditingController();
 
   bool isPdfFileUploaded = false;
+
+  final List<String> placesRu = ['ИСТ', 'АССТ'];
+
+  bool showAdd = false;
 
   @override
   Widget build(BuildContext context) {
@@ -63,11 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
               canEdit: false,
             ),
             const SizedBox(height: 24),
-            CustomTextFieldWithColumnText(
-              title: 'Кафедра',
-              controller: _controller2,
-              hintText: '01.02.2023',
-            ),
+            _buildDropDown(),
             const SizedBox(height: 24),
             CustomTextFieldWithColumnText(
               title: 'Буйрутма беруу мөөнөтү',
@@ -75,7 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
               hintText: '01.02.2023',
             ),
             const SizedBox(height: 24),
-            _buildDropDown(),
+            CustomTextFieldWithColumnText(
+              title: 'Китеп фонду',
+              controller: _controller2,
+              hintText: '01.02.2023',
+            ),
             const SizedBox(height: 24),
             _uploadPDF(),
             const SizedBox(height: 30),
@@ -138,6 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Expanded(
           child: CustomTextField(
+            hasText: true,
             title: 'Камсыздоо коэффициенти',
             controller: _controller5,
             hintText: '0 - 100',
@@ -170,12 +179,12 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               children: [
                 Text(
-                  'ед.',
+                  'ст. с.',
                   style: MTextStyle.h3_14Regular(MColor.greenPrimary),
                 ),
                 SizedBox(width: 20),
                 Text(
-                  'каб.',
+                  'кт. с.',
                   style: MTextStyle.h3_14Regular(MColor.greenPrimary),
                 ),
               ],
@@ -192,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               children: [
                 Text('2'),
-                SizedBox(width: 33),
+                SizedBox(width: 40),
                 Text('1'),
                 SizedBox(width: 8),
               ],
@@ -210,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               children: [
                 Text('3-5'),
-                SizedBox(width: 33),
+                SizedBox(width: 40),
                 Text('1'),
                 SizedBox(width: 8),
               ],
@@ -222,12 +231,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildDropDown() {
-    final List<String> placesRu = ['Айтматов', 'Тыныстанов'];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Китеп фонду',
+          'Кафедра',
           style: GoogleFonts.inter(
             textStyle: const TextStyle(
               fontWeight: FontWeight.w400,
@@ -238,63 +246,121 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(height: 4),
-        Container(
-          height: 50,
-          padding: EdgeInsets.symmetric(horizontal: 15),
-          decoration: BoxDecoration(
-              color: MColor.gray_01,
-              border: Border.all(color: MColor.greenPrimary),
-              borderRadius: BorderRadius.circular(15)),
-          child: DropdownButtonFormField<String>(
-            dropdownColor: Colors.black,
-            borderRadius: BorderRadius.circular(15),
-            decoration: InputDecoration(
-              contentPadding:
-                  EdgeInsets.only(left: 0, right: 0, top: 9, bottom: 9),
-              hintText: 'Тандаңыз',
-              border: InputBorder.none,
-            ),
-            selectedItemBuilder: (_) {
-              return placesRu
-                  .map((e) => Text(
-                        e,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontWeight: FontWeight.normal,
-                          color: Colors.black,
-                          fontSize: 16,
-                          height: 0,
+        Row(
+          children: [
+            !showAdd
+                ? Expanded(
+                    child: Container(
+                      height: 50,
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                          color: MColor.gray_01,
+                          border: Border.all(color: MColor.greenPrimary),
+                          borderRadius: BorderRadius.circular(15)),
+                      child: DropdownButtonFormField<String>(
+                        dropdownColor: Colors.black,
+                        borderRadius: BorderRadius.circular(15),
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.only(
+                              left: 0, right: 0, top: 9, bottom: 9),
+                          hintText: 'Тандаңыз',
+                          border: InputBorder.none,
                         ),
-                      ))
-                  .toList();
-            },
-            value: _choosenData,
-            icon: Icon(Icons.arrow_drop_down),
-            items: placesRu.map((value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(
-                  value,
-                  style: TextStyle(
-                    color: Colors.white,
-                    height: 0,
-                    fontSize: 16,
-                  ),
-                ),
-              );
-            }).toList(),
-            onChanged: (newValue) {
-              setState(() {
-                _choosenData = newValue;
-              });
-            },
-          ),
+                        selectedItemBuilder: (_) {
+                          return placesRu
+                              .map(
+                                (e) => Text(
+                                  e,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    height: 0,
+                                  ),
+                                ),
+                              )
+                              .toList();
+                        },
+                        value: _choosenData,
+                        icon: Icon(Icons.arrow_drop_down),
+                        items: placesRu.map((value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(
+                              value,
+                              style: TextStyle(
+                                color: Colors.white,
+                                height: 0,
+                                fontSize: 16,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          setState(() {
+                            _choosenData = newValue;
+                          });
+                        },
+                      ),
+                    ),
+                  )
+                : addNewDepartment(),
+            GestureDetector(
+                onTap: () {
+                  setState(() {
+                    showAdd = !showAdd;
+                  });
+                },
+                child: Icon(showAdd ? Icons.remove : Icons.add)),
+          ],
         ),
       ],
     );
   }
 
-  String? _choosenData;
+  Widget addNewDepartment() {
+    return Expanded(
+      child: SizedBox(
+        height: 50,
+        child: Row(
+          children: [
+            Expanded(
+              child: CustomTextField2(
+                title: '',
+                controller: _controller6,
+                hintText: 'жаны кафедра кошуу',
+                keyboardType: TextInputType.number,
+              ),
+            ),
+            SizedBox(width: 10),
+            SizedBox(
+              width: 100,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (_controller6.text.isNotEmpty) {
+                    setState(() {
+                      placesRu.add(_controller6.text);
+                      showAdd = !showAdd;
+                    });
+                    _controller6.clear();
+                  } else {
+                    MToast().showRed('Талаа бош болбосун!');
+                  }
+                },
+                child: Text(
+                  'Кошуу',
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String? _choosenData = null;
 
   bool isFulledFields() {
     return _controller1.text.isNotEmpty &&
