@@ -19,6 +19,7 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: Colors.white,
         title: Text('Кирүү', style: MTextStyle.appBarTextStyle),
       ),

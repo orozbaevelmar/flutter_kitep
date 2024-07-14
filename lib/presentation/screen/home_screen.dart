@@ -1,7 +1,5 @@
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:kitep/constants/constants.dart';
@@ -21,13 +19,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // TextEditingController -----------------------------------------------------
   final TextEditingController _controller1 = TextEditingController();
-  final TextEditingController _controller2 = TextEditingController();
+  String _choosenData2 = '';
   final TextEditingController _controller3 = TextEditingController();
   final TextEditingController _controller4 = TextEditingController();
-  final TextEditingController _controller5 = TextEditingController();
+  bool isPdfFileUploaded5 = false;
   final TextEditingController _controller6 = TextEditingController();
-
-  bool isPdfFileUploaded = false;
+  bool isPdfFileUploaded7 = false;
 
   final List<String> placesRu = ['ИСТ', 'АССТ'];
 
@@ -51,6 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   AppBar _appBar() {
     return AppBar(
+      centerTitle: true,
       automaticallyImplyLeading: false,
       title: Text('Комплект', style: MTextStyle.appBarTextStyle),
     );
@@ -71,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
               canEdit: false,
             ),
             const SizedBox(height: 24),
-            _buildDropDown(),
+            _buildDropDown(), //  choosenData2
             const SizedBox(height: 24),
             CustomTextFieldWithColumnText(
               title: 'Буйрутма беруу мөөнөтү',
@@ -81,24 +79,24 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 24),
             CustomTextFieldWithColumnText(
               title: 'Китеп фонду',
-              controller: _controller2,
+              controller: _controller4,
               hintText: '01.02.2023',
             ),
             const SizedBox(height: 24),
-            _uploadPDF(),
+            _uploadPDF(), // isPdfFileUploaded5
             const SizedBox(height: 30),
             _buildForInformation(),
             const SizedBox(height: 24),
-            _buildSupplyRatio(),
+            _buildSupplyRatio(), // 6
             const SizedBox(height: 24),
-            _newBooksCame(),
+            _newBooksCame(), // 7
             const SizedBox(height: 30),
             CustomButton(
               title: 'Жөнөтүү',
               onTap: () => isFulledFields()
                   ? MToast().showBrown('Жөнөтүлдү')
                   : MToast().showRed('Бардык талалар толтурулушу зарыл!'),
-            )
+            ),
           ],
         ),
       ),
@@ -112,13 +110,13 @@ class _HomeScreenState extends State<HomeScreen> {
       contentPadding: const EdgeInsets.all(0),
       horizontalTitleGap: 0,
       leading: TextButton(
-        onPressed: takeFileFromPhone,
+        onPressed: takeFileFromPhone5,
         child: Text('PDF жүктөө',
             style: GoogleFonts.inter(
               textStyle: MTextStyle.ui_16Medium(Colors.blue.shade900),
             )),
       ),
-      trailing: CustomCheckBox(isPdfFileUploaded: isPdfFileUploaded),
+      trailing: CustomCheckBox(isPdfFileUploaded: isPdfFileUploaded5),
     );
   }
 
@@ -129,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
       contentPadding: const EdgeInsets.all(0),
       horizontalTitleGap: 0,
       leading: TextButton(
-        onPressed: takeFileFromPhone,
+        onPressed: takeFileFromPhone7,
         child: Text(
           'Жаны келип тушкон китептер',
           style: GoogleFonts.inter(
@@ -137,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      trailing: CustomCheckBox(isPdfFileUploaded: isPdfFileUploaded),
+      trailing: CustomCheckBox(isPdfFileUploaded: isPdfFileUploaded7),
     );
   }
 
@@ -148,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: CustomTextField(
             hasText: true,
             title: 'Камсыздоо коэффициенти',
-            controller: _controller5,
+            controller: _controller6,
             hintText: '0 - 100',
             textFieldWidth: 100,
             keyboardType: TextInputType.number,
@@ -282,7 +280,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               )
                               .toList();
                         },
-                        value: _choosenData,
                         icon: Icon(Icons.arrow_drop_down),
                         items: placesRu.map((value) {
                           return DropdownMenuItem<String>(
@@ -299,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         }).toList(),
                         onChanged: (newValue) {
                           setState(() {
-                            _choosenData = newValue;
+                            _choosenData2 = newValue ?? '';
                           });
                         },
                       ),
@@ -360,20 +357,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  String? _choosenData = null;
-
   bool isFulledFields() {
     return _controller1.text.isNotEmpty &&
-            _controller2.text.isNotEmpty &&
+            _choosenData2.isNotEmpty &&
             _controller3.text.isNotEmpty &&
             _controller4.text.isNotEmpty &&
-            _controller5.text.isNotEmpty &&
-            isPdfFileUploaded
+            isPdfFileUploaded5 &&
+            _controller6.text.isNotEmpty &&
+            isPdfFileUploaded7
         ? true
         : false;
   }
 
-  void takeFileFromPhone() async {
+  void takeFileFromPhone5() async {
     final takenFile = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
@@ -381,13 +377,31 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (takenFile != null) {
       setState(() {
-        isPdfFileUploaded = true;
+        isPdfFileUploaded5 = true;
       });
 
       //String fileName = takenFile.files[0].name;
       //print('File is uploaded');
     } else {
-      MToast().showRed('Не вышло загрузить pdf-файл');
+      MToast().showRed('PDF-файл жүктөлгөн жок');
+    }
+  }
+
+  void takeFileFromPhone7() async {
+    final takenFile = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (takenFile != null) {
+      setState(() {
+        isPdfFileUploaded7 = true;
+      });
+
+      //String fileName = takenFile.files[0].name;
+      //print('File is uploaded');
+    } else {
+      MToast().showRed('PDF-файл жүктөлгөн жок');
     }
   }
 }
